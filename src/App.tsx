@@ -3,17 +3,19 @@ import logo from './logo.svg'
 import './App.css'
 import { atomWithDefault, useAtomValue } from "jotai/utils"
 
-const fetchCurrentCountry = async () => {
+const fetchCurrentLocation = async () => {
   try {
-    const rawResponse = await fetch("https://extreme-ip-lookup.com/json/")
-    return (await rawResponse.json()).country
+    const rawResponse = await fetch("https://lumtest.com/myip.json")
+    const parsedResponse = await rawResponse.json()
+
+    return `${parsedResponse.geo.city}, ${parsedResponse.geo.region_name}`
   }
   catch (error) {
     return null
   }
 }
 
-const currentCountryState = atomWithDefault<string>(() => fetchCurrentCountry())
+const currentCountryState = atomWithDefault<string | null>(() => fetchCurrentLocation())
 
 function App() {
   const [showLocation, setShowLocation] = useState<boolean>(false)
