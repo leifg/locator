@@ -55,7 +55,7 @@ function App() {
 
     const country = useAtomValue(currentCountryState)
 
-    const countryName = country ? country.Name : "Not Found"
+    const countryName = country ? country.name : "Not Found"
 
     return (
       <div>
