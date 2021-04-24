@@ -5,8 +5,8 @@ import { atomWithDefault, useAtomValue } from "jotai/utils"
 import { atom } from 'jotai'
 
 interface Country {
-  Code: string,
-  Name: string,
+  key: string,
+  name: string,
 }
 
 interface Location {
@@ -15,7 +15,7 @@ interface Location {
 
 const fetchAllCountries = async () => {
   try {
-    const rawResponse = await fetch("https://datahub.io/core/country-list/r/0.json")
+    const rawResponse = await fetch("https://backend.filmswipe.io/core/countries")
     return await rawResponse.json()
   }
   catch (error) {
@@ -33,7 +33,7 @@ const fetchCurrentLocation = async () => {
   }
 }
 
-const currentCountryState = atom<Country | undefined>((get) => (get(availableCountriesState).find((country) => country.Code === get(currentLocationState).country )))
+const currentCountryState = atom<Country | undefined>((get) => (get(availableCountriesState).find((country) => country.key === get(currentLocationState).country )))
 const currentLocationState = atomWithDefault<Location>(() => fetchCurrentLocation())
 const availableCountriesState = atom<Array<Country>>(async () => fetchAllCountries())
 
