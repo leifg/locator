@@ -2,20 +2,40 @@ import React, { useState } from 'react'
 import logo from './logo.svg'
 import './App.css'
 import { atomWithDefault, useAtomValue } from "jotai/utils"
+import { atom } from 'jotai'
+
+interface Country {
+  Code: string,
+  Name: string,
+}
+
+interface Location {
+  country: string
+}
+
+const fetchAllCountries = async () => {
+  try {
+    const rawResponse = await fetch("https://datahub.io/core/country-list/r/0.json")
+    return await rawResponse.json()
+  }
+  catch (error) {
+    return {country: "US"}
+  }
+}
 
 const fetchCurrentLocation = async () => {
   try {
     const rawResponse = await fetch("https://lumtest.com/myip.json")
-    const parsedResponse = await rawResponse.json()
-
-    return `${parsedResponse.geo.city}, ${parsedResponse.geo.region_name}`
+    return await rawResponse.json()
   }
   catch (error) {
     return null
   }
 }
 
-const currentCountryState = atomWithDefault<string | null>(() => fetchCurrentLocation())
+const currentCountryState = atom<Country | undefined>((get) => (get(availableCountriesState).find((country) => country.Code === get(currentLocationState).country )))
+const currentLocationState = atomWithDefault<Location>(() => fetchCurrentLocation())
+const availableCountriesState = atom<Array<Country>>(async () => fetchAllCountries())
 
 function App() {
   const [showLocation, setShowLocation] = useState<boolean>(false)
@@ -35,9 +55,11 @@ function App() {
 
     const country = useAtomValue(currentCountryState)
 
+    const countryName = country ? country.Name : "Not Found"
+
     return (
       <div>
-        <h1>{country}</h1>
+        <h1>{countryName}</h1>
       </div>
     )
   }
