@@ -6,11 +6,11 @@ import { Provider as JotaiProvider } from "jotai"
 
 ReactDOM.render(
   <React.StrictMode>
-      <JotaiProvider>
-        <Suspense fallback={<div>Wait for it</div>}>
-          <App />
-        </Suspense>
-      </JotaiProvider>
+    <JotaiProvider>
+      <Suspense fallback={<div>Wait for it</div>}>
+        <App />
+      </Suspense>
+    </JotaiProvider>
   </React.StrictMode>,
   document.getElementById('root')
 )

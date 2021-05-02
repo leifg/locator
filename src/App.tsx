@@ -1,80 +1,46 @@
-import React, { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import React from "react"
+
 import { atomWithDefault, useAtomValue } from "jotai/utils"
-import { atom } from 'jotai'
+import { atom } from "jotai"
 
-interface Country {
-  key: string,
-  name: string,
+const fetchEntities = async () => {
+  const rawResponse = await fetch("https://backend.filmswipe.io/core/countries")
+  return rawResponse.json()
 }
 
-interface Location {
-  country: string
-}
+const fetchCurrentCountryCode = async () => {
 
-const fetchAllCountries = async () => {
-  try {
-    const rawResponse = await fetch("https://backend.filmswipe.io/core/countries")
-    return await rawResponse.json()
-  }
-  catch (error) {
-    return {country: "US"}
-  }
-}
-
-const fetchCurrentLocation = async () => {
   try {
     const rawResponse = await fetch("https://lumtest.com/myip.json")
-    return await rawResponse.json()
+    return (await rawResponse.json()).countryCode
   }
   catch (error) {
     return null
   }
 }
 
-const currentCountryState = atom<Country | undefined>((get) => (get(availableCountriesState).find((country) => country.key === get(currentLocationState).country )))
-const currentLocationState = atomWithDefault<Location>(() => fetchCurrentLocation())
-const availableCountriesState = atom<Array<Country>>(async () => fetchAllCountries())
+const selectedCountryState = atomWithDefault((get) => get(defaultCountryState))
 
-function App() {
-  const [showLocation, setShowLocation] = useState<boolean>(false)
+const defaultCountryState = atom(async (get) => {
+  const allCountries = get(availableCountriesState)
+  const currentLocation = get(currentCountryCode)
 
-  function Intro() {
-    return (
-      <div>
-        <p>Henlo!</p>
-        <p>
-          <button onClick={() => setShowLocation(true)}>Where am I?</button>
-        </p>
-      </div>
-    )
-  }
+  return allCountries.find(({id} : {id : string}) => id == currentLocation) || {id: "US", name: "United States"}
+})
 
-  function Location() {
+const availableCountriesState = atom((get) => get(availableCountriesStateApi))
 
-    const country = useAtomValue(currentCountryState)
+const availableCountriesStateApi = atom(async () => fetchEntities())
 
-    const countryName = country ? country.name : "Not Found"
+const currentCountryCode = atom<string>(() => fetchCurrentCountryCode())
 
-    return (
-      <div>
-        <h1>{countryName}</h1>
-      </div>
-    )
-  }
+const WatchProviderSelection : React.FC = () => {
+  const selectedCountry = useAtomValue(selectedCountryState)
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        {
-          showLocation ? <Location /> : <Intro />
-        }
-      </header>
-    </div>
-  )
+  return (<div>
+    <h1>{selectedCountry.name}</h1>
+  </div>)
 }
 
-export default App
-
+WatchProviderSelection.displayName = "WatchProviderSelection"
+export default WatchProviderSelection
