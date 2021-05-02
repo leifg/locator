@@ -12,7 +12,7 @@ const fetchCurrentCountryCode = async () => {
 
   try {
     const rawResponse = await fetch("https://lumtest.com/myip.json")
-    return (await rawResponse.json()).countryCode
+    return (await rawResponse.json()).country
   }
   catch (error) {
     return null
@@ -25,7 +25,7 @@ const defaultCountryState = atom(async (get) => {
   const allCountries = get(availableCountriesState)
   const currentLocation = get(currentCountryCode)
 
-  return allCountries.find(({id} : {id : string}) => id == currentLocation) || {id: "US", name: "United States"}
+  return allCountries.find(({key} : {key : string}) => key == currentLocation) || {id: "US", name: "United States"}
 })
 
 const availableCountriesState = atom((get) => get(availableCountriesStateApi))
